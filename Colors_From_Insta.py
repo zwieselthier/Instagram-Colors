@@ -37,7 +37,7 @@ chromedriver = r"chromedriver.exe" #Link to Chromedriver
 #inputs
 hashtag = input('Hashtag \n#') #Hashtag to anaylze (without the # symbol)
 num_colors = int(input('Number of Colors per Photo \n'))
-
+topphotos = input('Include only top photos? Y/N \n')
 
 url = f'https://www.instagram.com/explore/tags/{hashtag}'
 driver = webdriver.Chrome(chromedriver)
@@ -45,7 +45,7 @@ driver.get(url)
 
 for x in [1,50, 100, 150]: #Scrolls down to grab more images Dont belive this actually works when not logged in
     driver.execute_script(f"window.scrollTo(0, 10000 * {x})")
-    time.sleep(.1)
+    time.sleep(.2)
 
 #%%
 soup = BeautifulSoup(driver.page_source) #Grab HTML
@@ -61,6 +61,9 @@ df = pd.DataFrame(image_list, columns = ['srcset'])
 df.dropna(inplace = True)
 df = df['srcset'].str.split(' ',expand=True)[0].to_frame()
 df = df[df[0].str.contains("https:")]
+
+if topphotos == 'Y': #Grab only top photos
+    df = df.head(9)
 
 #%% Analze each URL Photo for colors and add to list
 print('Analyzing Photos')
